@@ -1,14 +1,31 @@
 package de.aittr.g_37_jp_shop.domain.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import jakarta.persistence.*;
+
 import java.math.BigDecimal;
 import java.util.Objects;
 
+@Entity
+@Table(name = "product")
 public class Product {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
     private Long id;
+
+    @Column(name = "title")
     private String title;
+
+    @Column(name = "price")
     private BigDecimal price;
+
+    @Column(name = "is_active")
     private boolean isActive;
+
+    public Product() {
+    }
 
     public Product(Long id, String title, BigDecimal price, boolean isActive) {
         this.id = id;
@@ -29,6 +46,7 @@ public class Product {
         return price;
     }
 
+    @JsonIgnore
     public boolean isActive() {
         return isActive;
     }

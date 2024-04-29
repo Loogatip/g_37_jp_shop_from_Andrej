@@ -26,7 +26,7 @@ public class ProductController {
     // GET - localhost:8080/products/example?id=5
 
     @GetMapping("/example")
-    public Product getById(@RequestParam int id) {
-        return service.getById((long) id);
+    public Product getById(@RequestParam Long id) {
+        return service.getById(id);
     }
 }
