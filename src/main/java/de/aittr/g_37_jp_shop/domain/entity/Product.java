@@ -51,6 +51,22 @@ public class Product {
         return isActive;
     }
 
+    public void setId(Long id) {
+        this.id = id;
+    }
+
+    public void setTitle(String title) {
+        this.title = title;
+    }
+
+    public void setPrice(BigDecimal price) {
+        this.price = price;
+    }
+
+    public void setActive(boolean isActive) {
+        this.isActive = isActive;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
