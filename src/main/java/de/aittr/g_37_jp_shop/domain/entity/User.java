@@ -3,6 +3,7 @@ package de.aittr.g_37_jp_shop.domain.entity;
 import jakarta.persistence.*;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.util.Collection;
 import java.util.Objects;
@@ -113,7 +114,7 @@ public class User implements UserDetails {
 
     // Ручная генерация зашифрованного пароля
     // для ручного добавления в БД тестовых пользователей
-//    public static void main(String[] args) {
-//        System.out.println(new BCryptPasswordEncoder().encode("111"));
-//    }
+    public static void main(String[] args) {
+        System.out.println(new BCryptPasswordEncoder().encode("111"));
+    }
 }
