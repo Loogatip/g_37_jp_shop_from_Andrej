@@ -4,12 +4,11 @@ import de.aittr.g_37_jp_shop.domain.entity.User;
 import de.aittr.g_37_jp_shop.security.sec_dto.RefreshRequestDto;
 import de.aittr.g_37_jp_shop.security.sec_dto.TokenResponseDto;
 import de.aittr.g_37_jp_shop.security.sec_service.AuthService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/auth")
@@ -22,22 +21,42 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<Object> login(@RequestBody User user) {
+    public ResponseEntity<Object> login(@RequestBody User user, HttpServletResponse response) {
         try {
-            TokenResponseDto response = service.login(user);
-            return ResponseEntity.ok(response);
+            TokenResponseDto tokenDto = service.login(user);
+            Cookie cookie = new Cookie("Access-Token", tokenDto.getAccessToken());
+            cookie.setPath("/");
+            // http-only cookie
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+            return ResponseEntity.ok(tokenDto);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
     }
 
     @PostMapping("/access")
-    public ResponseEntity<Object> getNewAccessToken(@RequestBody RefreshRequestDto request) {
+    public ResponseEntity<Object> getNewAccessToken(@RequestBody RefreshRequestDto request, HttpServletResponse response) {
         try {
-            TokenResponseDto response = service.getAccessToken(request.getRefreshToken());
-            return ResponseEntity.ok(response);
+            TokenResponseDto tokenDto = service.getAccessToken(request.getRefreshToken());
+            Cookie cookie = new Cookie("Access-Token", tokenDto.getAccessToken());
+            cookie.setPath("/");
+            // http-only cookie
+            cookie.setHttpOnly(true);
+            response.addCookie(cookie);
+            return ResponseEntity.ok(tokenDto);
         } catch (Exception e) {
             return new ResponseEntity<>(e.getMessage(), HttpStatus.BAD_REQUEST);
         }
+    }
+
+    @GetMapping("/logout")
+    public void logout(HttpServletResponse response) {
+        Cookie cookie = new Cookie("Access-Token", null);
+        cookie.setPath("/");
+        // http-only cookie
+        cookie.setHttpOnly(true);
+        cookie.setMaxAge(0);
+        response.addCookie(cookie);
     }
 }
