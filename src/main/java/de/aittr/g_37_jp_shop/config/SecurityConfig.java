@@ -37,11 +37,12 @@ public class SecurityConfig {
                 .sessionManagement(x -> x
                         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(x -> x
-//                        .requestMatchers(HttpMethod.GET, "/products").hasAnyRole("ADMIN", "USER")
-//                        .requestMatchers(HttpMethod.GET, "/products/all").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
-//                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/access").permitAll()
-                        .anyRequest().permitAll())
+                        .requestMatchers(HttpMethod.GET, "/products").hasAnyRole("ADMIN", "USER")
+                        .requestMatchers(HttpMethod.GET, "/products/all").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/products").hasRole("ADMIN")
+                        .requestMatchers(HttpMethod.POST, "/auth/login", "/auth/access").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/hello").permitAll()
+                        .anyRequest().authenticated())
                 .httpBasic(AbstractHttpConfigurer::disable)
                 .addFilterAfter(filter, UsernamePasswordAuthenticationFilter.class)
                 .build();
