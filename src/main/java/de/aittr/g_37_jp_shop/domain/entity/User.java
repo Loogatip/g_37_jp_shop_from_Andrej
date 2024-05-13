@@ -32,6 +32,28 @@ public class User implements UserDetails {
     )
     private Set<Role> roles;
 
+    @Column(name = "email")
+    private String email;
+
+    @Column(name = "is_active")
+    private boolean isActive;
+
+    public boolean isActive() {
+        return isActive;
+    }
+
+    public void setActive(boolean active) {
+        isActive = active;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return roles;
@@ -96,25 +118,23 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles);
+        return isActive == user.isActive && Objects.equals(id, user.id) && Objects.equals(username, user.username) && Objects.equals(password, user.password) && Objects.equals(roles, user.roles) && Objects.equals(email, user.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, username, password, roles);
+        return Objects.hash(id, username, password, roles, email, isActive);
     }
 
     @Override
     public String toString() {
-        return String.format("User: ID - %d, username - %s, role - %s",
-                id, username, roles);
+        return String.format("User: ID - %d, username - %s, email - %s, active - %s, role - %s",
+                id, username, email, isActive ? "yes" : "no", roles);
     }
-
-
 
     // Ручная генерация зашифрованного пароля
     // для ручного добавления в БД тестовых пользователей
-    public static void main(String[] args) {
-        System.out.println(new BCryptPasswordEncoder().encode("111"));
-    }
+//    public static void main(String[] args) {
+//        System.out.println(new BCryptPasswordEncoder().encode("111"));
+//    }
 }
