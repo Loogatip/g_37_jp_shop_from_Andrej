@@ -49,6 +49,9 @@ public class Product {
     @Column(name = "is_active")
     private boolean isActive;
 
+    @Column(name = "image")
+    private String image;
+
     public Product() {
     }
 
@@ -57,6 +60,14 @@ public class Product {
         this.title = title;
         this.price = price;
         this.isActive = isActive;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public Long getId() {
@@ -97,12 +108,12 @@ public class Product {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
-        return isActive == product.isActive && Objects.equals(id, product.id) && Objects.equals(title, product.title) && Objects.equals(price, product.price);
+        return isActive == product.isActive && Objects.equals(id, product.id) && Objects.equals(title, product.title) && Objects.equals(price, product.price) && Objects.equals(image, product.image);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, price, isActive);
+        return Objects.hash(id, title, price, isActive, image);
     }
 
     @Override

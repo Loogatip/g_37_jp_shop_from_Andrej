@@ -14,7 +14,6 @@ import org.springframework.ui.freemarker.FreeMarkerTemplateUtils;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
 
 @Service
 public class EmailServiceImpl implements EmailService {

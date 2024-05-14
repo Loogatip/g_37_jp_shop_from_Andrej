@@ -2,16 +2,14 @@ package de.aittr.g_37_jp_shop.service;
 
 import de.aittr.g_37_jp_shop.domain.dto.ProductDto;
 import de.aittr.g_37_jp_shop.domain.entity.Product;
-import de.aittr.g_37_jp_shop.exception_handling.exceptions.FirstTestException;
-import de.aittr.g_37_jp_shop.exception_handling.exceptions.FourthTestException;
-import de.aittr.g_37_jp_shop.exception_handling.exceptions.SecondTestException;
-import de.aittr.g_37_jp_shop.exception_handling.exceptions.ThirdTestException;
+import de.aittr.g_37_jp_shop.exception_handling.exceptions.*;
 import de.aittr.g_37_jp_shop.repository.ProductRepository;
 import de.aittr.g_37_jp_shop.service.interfaces.ProductService;
 import de.aittr.g_37_jp_shop.service.mapping.ProductMappingService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.util.List;
@@ -111,5 +109,17 @@ public class ProductServiceImpl implements ProductService {
     @Override
     public BigDecimal getAveragePrice() {
         return null;
+    }
+
+    @Override
+    @Transactional
+    public void attachImage(String imageUrl, String productTitle) {
+        Product product = repository.findByTitle(productTitle);
+
+        if (product == null) {
+            throw new ProductNotFoundException(productTitle);
+        }
+
+        product.setImage(imageUrl);
     }
 }
