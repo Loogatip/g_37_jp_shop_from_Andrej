@@ -6,17 +6,20 @@ import de.aittr.g_37_jp_shop.domain.entity.User;
 import de.aittr.g_37_jp_shop.repository.ProductRepository;
 import de.aittr.g_37_jp_shop.repository.RoleRepository;
 import de.aittr.g_37_jp_shop.repository.UserRepository;
+import de.aittr.g_37_jp_shop.security.sec_dto.TokenResponseDto;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.MethodOrderer;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.TestMethodOrder;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.boot.test.web.server.LocalServerPort;
-import org.springframework.http.HttpHeaders;
+import org.springframework.http.*;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Set;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -46,8 +49,21 @@ class ProductControllerTest {
     private final String TEST_ADMIN_NAME = "Test Admin";
     private final String TEST_USER_NAME = "Test User";
     private final String TEST_PASSWORD = "Test password";
+    private final String TEST_EMAIL = "test@test.com";
     private final String ADMIN_ROLE_NAME = "ROLE_ADMIN";
     private final String USER_ROLE_NAME = "ROLE_USER";
+
+    private final String AUTH_HEADER_NAME = "Authorization";
+    private final String BEARER_PREFIX = "Bearer ";
+
+    private final String HTTP_PREFIX = "http://localhost:";
+    private final String AUTH_RESOURCE_NAME = "/auth";
+    private final String PRODUCTS_RESOURCE_NAME = "/products";
+    private final String LOGIN_ENDPOINT = "/login";
+    private final String ALL_ENDPOINT = "/all";
+
+    private String adminAccessToken;
+    private String userAccessToken;
 
     @BeforeEach
     public void setUp() {
@@ -58,7 +74,7 @@ class ProductControllerTest {
         testProduct.setTitle(TEST_PRODUCT_NAME);
         testProduct.setPrice(TEST_PRODUCT_PRICE);
 
-        BCryptPasswordEncoder encoder;
+        BCryptPasswordEncoder encoder = null;
         Role roleAdmin;
         Role roleUser = null;
 
@@ -74,20 +90,62 @@ class ProductControllerTest {
             admin.setUsername(TEST_ADMIN_NAME);
             admin.setPassword(encoder.encode(TEST_PASSWORD));
             admin.setRoles(Set.of(roleAdmin, roleUser));
+            admin.setEmail(TEST_EMAIL);
+            admin.setActive(true);
 
             userRepository.save(admin);
         }
 
         if (user == null) {
-            encoder = new BCryptPasswordEncoder();
+            encoder = encoder == null ? new BCryptPasswordEncoder() : encoder;
 
             user = new User();
             user.setUsername(TEST_USER_NAME);
             user.setPassword(encoder.encode(TEST_PASSWORD));
             user.setRoles(Set.of(roleUser == null ?
                     roleRepository.findByTitle(USER_ROLE_NAME) : roleUser));
+            user.setEmail(TEST_EMAIL);
+            user.setActive(true);
 
             userRepository.save(user);
         }
+
+        admin.setPassword(TEST_PASSWORD);
+        admin.setRoles(null);
+
+        user.setPassword(TEST_PASSWORD);
+        user.setRoles(null);
+
+        String url = HTTP_PREFIX + port + AUTH_RESOURCE_NAME + LOGIN_ENDPOINT;
+        HttpEntity<User> request = new HttpEntity<>(admin, headers);
+
+        ResponseEntity<TokenResponseDto> response = template
+                .exchange(url, HttpMethod.POST, request, TokenResponseDto.class);
+
+        assertTrue(response.hasBody(), "Token response does not contain body");
+
+        adminAccessToken = BEARER_PREFIX + response.getBody().getAccessToken();
+
+        request = new HttpEntity<>(user, headers);
+
+        response = template
+                .exchange(url, HttpMethod.POST, request, TokenResponseDto.class);
+
+        assertTrue(response.hasBody(), "Token response does not contain body");
+
+        userAccessToken = BEARER_PREFIX + response.getBody().getAccessToken();
+    }
+
+    @Test
+    public void positiveGettingAllProductsWithoutAuthorization() {
+
+        String url = HTTP_PREFIX + port + PRODUCTS_RESOURCE_NAME + ALL_ENDPOINT;
+        HttpEntity<Object> request = new HttpEntity<>(headers);
+
+        ResponseEntity<ProductDto[]> response = template
+                .exchange(url, HttpMethod.GET, request, ProductDto[].class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Response has incorrect http status");
+        assertTrue(response.hasBody(), "Response has empty body");
     }
 }

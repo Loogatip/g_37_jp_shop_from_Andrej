@@ -52,6 +52,9 @@ public class Product {
     @Column(name = "image")
     private String image;
 
+    @Column(name = "quantity")
+    private int quantity;
+
     public Product() {
     }
 
@@ -60,6 +63,14 @@ public class Product {
         this.title = title;
         this.price = price;
         this.isActive = isActive;
+    }
+
+    public int getQuantity() {
+        return quantity;
+    }
+
+    public void setQuantity(int quantity) {
+        this.quantity = quantity;
     }
 
     public String getImage() {
@@ -108,17 +119,17 @@ public class Product {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         Product product = (Product) o;
-        return isActive == product.isActive && Objects.equals(id, product.id) && Objects.equals(title, product.title) && Objects.equals(price, product.price) && Objects.equals(image, product.image);
+        return isActive == product.isActive && quantity == product.quantity && Objects.equals(id, product.id) && Objects.equals(title, product.title) && Objects.equals(price, product.price) && Objects.equals(image, product.image);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, title, price, isActive, image);
+        return Objects.hash(id, title, price, isActive, image, quantity);
     }
 
     @Override
     public String toString() {
-        return String.format("Product: ID - %d, title - %s, price - %.2f, active - %s",
-                id, title, price, isActive ? "yes" : "no");
+        return String.format("Product: ID - %d, title - %s, price - %.2f, quantity - %d, active - %s",
+                id, title, price, quantity, isActive ? "yes" : "no");
     }
 }

@@ -1,6 +1,7 @@
 package de.aittr.g_37_jp_shop.service.mapping;
 
 import de.aittr.g_37_jp_shop.domain.dto.ProductDto;
+import de.aittr.g_37_jp_shop.domain.dto.ProductSupplyDto;
 import de.aittr.g_37_jp_shop.domain.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
@@ -18,6 +19,8 @@ public interface ProductMappingService {
 //    }
 
     ProductDto mapEntityToDto(Product entity);
+
+    ProductSupplyDto mapEntityToSupplyDto(Product entity);
 
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "active", constant = "true")
