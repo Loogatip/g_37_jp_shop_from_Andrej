@@ -1,6 +1,7 @@
 package de.aittr.g_37_jp_shop.service;
 
 import de.aittr.g_37_jp_shop.domain.dto.ProductDto;
+import de.aittr.g_37_jp_shop.domain.dto.ProductSupplyDto;
 import de.aittr.g_37_jp_shop.domain.entity.Product;
 import de.aittr.g_37_jp_shop.exception_handling.exceptions.*;
 import de.aittr.g_37_jp_shop.repository.ProductRepository;
@@ -12,6 +13,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -121,5 +123,28 @@ public class ProductServiceImpl implements ProductService {
         }
 
         product.setImage(imageUrl);
+    }
+
+    @Override
+    public List<ProductSupplyDto> getProductsForSupply() {
+
+        // Альтернативный код без использования стрима
+//        List<Product> products = repository.findAll();
+//        List<ProductSupplyDto> result = new ArrayList<>();
+//
+//        for (Product product : products) {
+//            if (product.isActive()) {
+//                ProductSupplyDto dto = mappingService.mapEntityToSupplyDto(product);
+//                result.add(dto);
+//            }
+//        }
+//
+//        return result;
+
+        return repository.findAll()
+                .stream()
+                .filter(Product::isActive)
+                .map(mappingService::mapEntityToSupplyDto)
+                .toList();
     }
 }
