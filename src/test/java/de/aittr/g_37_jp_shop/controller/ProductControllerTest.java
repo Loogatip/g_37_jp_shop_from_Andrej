@@ -1,16 +1,14 @@
 package de.aittr.g_37_jp_shop.controller;
 
 import de.aittr.g_37_jp_shop.domain.dto.ProductDto;
+import de.aittr.g_37_jp_shop.domain.entity.Product;
 import de.aittr.g_37_jp_shop.domain.entity.Role;
 import de.aittr.g_37_jp_shop.domain.entity.User;
 import de.aittr.g_37_jp_shop.repository.ProductRepository;
 import de.aittr.g_37_jp_shop.repository.RoleRepository;
 import de.aittr.g_37_jp_shop.repository.UserRepository;
 import de.aittr.g_37_jp_shop.security.sec_dto.TokenResponseDto;
-import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.MethodOrderer;
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestMethodOrder;
+import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.web.client.TestRestTemplate;
@@ -61,6 +59,7 @@ class ProductControllerTest {
     private final String PRODUCTS_RESOURCE_NAME = "/products";
     private final String LOGIN_ENDPOINT = "/login";
     private final String ALL_ENDPOINT = "/all";
+    private final String ID_PARAM_NAME = "?id=";
 
     private String adminAccessToken;
     private String userAccessToken;
@@ -147,5 +146,77 @@ class ProductControllerTest {
 
         assertEquals(HttpStatus.OK, response.getStatusCode(), "Response has incorrect http status");
         assertTrue(response.hasBody(), "Response has empty body");
+    }
+
+    @Test
+    public void negativeSavingProductWithoutAuthorization() {
+
+        String url = HTTP_PREFIX + port + PRODUCTS_RESOURCE_NAME;
+        HttpEntity<ProductDto> request = new HttpEntity<>(testProduct, headers);
+
+        ResponseEntity<ProductDto> response = template
+                .exchange(url, HttpMethod.POST, request, ProductDto.class);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Response has incorrect http status");
+        assertFalse(response.hasBody(), "Response has unexpected body");
+    }
+
+    @Test
+    public void negativeSavingProductWithUserAuthorization() {
+
+        String url = HTTP_PREFIX + port + PRODUCTS_RESOURCE_NAME;
+        headers.put(AUTH_HEADER_NAME, List.of(userAccessToken));
+        HttpEntity<ProductDto> request = new HttpEntity<>(testProduct, headers);
+
+        ResponseEntity<ProductDto> response = template
+                .exchange(url, HttpMethod.POST, request, ProductDto.class);
+
+        assertEquals(HttpStatus.FORBIDDEN, response.getStatusCode(), "Response has incorrect http status");
+    }
+
+    @Test
+    @Order(1)
+    public void positiveSavingProductWithAdminAuthorization() {
+
+        String url = HTTP_PREFIX + port + PRODUCTS_RESOURCE_NAME;
+        headers.put(AUTH_HEADER_NAME, List.of(adminAccessToken));
+        HttpEntity<ProductDto> request = new HttpEntity<>(testProduct, headers);
+
+        ResponseEntity<ProductDto> response = template
+                .exchange(url, HttpMethod.POST, request, ProductDto.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Response has incorrect http status");
+
+        ProductDto savedProduct = response.getBody();
+        assertNotNull(savedProduct, "Response body is empty (product expected)");
+        assertNotNull(savedProduct.getId(), "Product ID is null");
+        assertEquals(TEST_PRODUCT_NAME, savedProduct.getTitle(), "Received product has unexpected title");
+    }
+
+    @Test
+    @Order(2)
+    public void positiveGettingProductByIdWithCorrectToken() {
+
+        Long id = productRepository.findByTitle(TEST_PRODUCT_NAME).getId();
+
+        String url = HTTP_PREFIX + port + PRODUCTS_RESOURCE_NAME + ID_PARAM_NAME + id;
+        headers.put(AUTH_HEADER_NAME, List.of(userAccessToken));
+        HttpEntity<Void> request = new HttpEntity<>(headers);
+
+        ResponseEntity<ProductDto> response = template
+                .exchange(url, HttpMethod.GET, request, ProductDto.class);
+
+        assertEquals(HttpStatus.OK, response.getStatusCode(), "Response has incorrect http status");
+
+        ProductDto savedProduct = response.getBody();
+        assertNotNull(savedProduct, "Response body is empty (product expected)");
+        assertEquals(TEST_PRODUCT_NAME, savedProduct.getTitle(), "Received product has unexpected title");
+    }
+
+    @Test
+    @Order(Integer.MAX_VALUE)
+    public void removeTestProductFromDatabase() {
+        Product product = productRepository.findByTitle(TEST_PRODUCT_NAME);
+        productRepository.delete(product);
     }
 }

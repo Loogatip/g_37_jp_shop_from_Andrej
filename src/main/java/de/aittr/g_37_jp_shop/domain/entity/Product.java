@@ -27,7 +27,7 @@ public class Product {
     // Banana# - X
     // Банан - X
     @Pattern(
-            regexp = "[A-Z][a-z]{2,}",
+            regexp = "[A-Z][a-z ]{2,}",
             message = "Product title should be at least 3 character length, " +
                     "start with capital letter and may contain only latin characters"
     )

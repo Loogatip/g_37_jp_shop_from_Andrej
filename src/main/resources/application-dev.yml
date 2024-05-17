@@ -12,7 +12,7 @@ spring:
         auto_quote_keyword: true
   mail:
     username: ait.andrey.mailer@gmail.com
-    password: kttqmyxfpivwqgdq
+    password: pwezgboxguvtjzzs
     host: smtp.gmail.com
     port: 587
     properties:
