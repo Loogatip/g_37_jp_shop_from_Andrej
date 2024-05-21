@@ -79,6 +79,12 @@ public class ProductServiceImpl implements ProductService {
     }
 
     @Override
+    public Product getProductEntityById(Long id) {
+        return repository.findById(id)
+                .orElseThrow(() -> new ProductNotFoundException(id));
+    }
+
+    @Override
     public void update(ProductDto product) {
 
     }
